@@ -7,8 +7,7 @@
 
 using namespace std;
 
-
-void isSafe(string record,int &safeCount)
+void isSafe(string record, int &safeCount)
 {
 
     // split the record unknowk number of int separated by a space
@@ -17,8 +16,11 @@ void isSafe(string record,int &safeCount)
     int num;
 
     bool isSafe = true;
-    bool ascending = true;
-    bool descending = true;
+    bool ascending = false;
+    bool descending = false;
+    bool moreSteps = false;
+    bool oneBad = false;
+    int badElement = 0;
 
     while (ss >> num)
     {
@@ -26,26 +28,65 @@ void isSafe(string record,int &safeCount)
 
         if (levels.size() > 1)
         {
-            int prev = levels[levels.size() - 1];
-            int actual = levels[levels.size() - 2];
+            int actual = levels[levels.size() - 1];
+            int prev = levels[levels.size() - 2];
             int change = abs(prev - actual);
+
             if (change > 3 || change == 0)
             {
-                isSafe = false;
-
-                break;
+                if (oneBad)
+                {
+                    isSafe = false;
+                }
+                else
+                {
+                    // remove actual element
+                    badElement = actual;
+                    levels.pop_back();
+                    oneBad = true;
+                }
             }
-            else
+            else if (prev < actual)
             {
-                if (prev < actual)
+                if (descending)
                 {
-                    ascending = false;
+                    if (oneBad)
+                    {
+                        isSafe = false;
+                    }
+                    else
+                    {
+                        // remove actual element
+                        badElement = actual;
+                        levels.pop_back();
+                        oneBad = true;
+                    }
                 }
-                if (prev > actual)
+                else
                 {
-                    descending = false;
+                    ascending = true;
                 }
-                isSafe = ascending || descending;
+            }
+            else if (prev > actual)
+            {
+                if (ascending)
+                {
+                    if (oneBad)
+                    {
+                        isSafe = false;
+                    }
+                    else
+                    {
+                        // remove actual element
+                        badElement = prev;
+                        levels.erase(levels.end() - 2);
+                        oneBad = true;
+                    }
+                }
+                else
+                {
+                    descending = true;
+                }
             }
         }
     }
@@ -60,8 +101,8 @@ void isSafe(string record,int &safeCount)
     // {
     //     cout << levels[i] << " ";
     // }
-    // cout << "is safe:"<< isSafe << endl;
-    // cout << "numbrer os fafe records: " << safeCount << endl;
+    // cout << " | badElement:" << badElement;
+    // cout << " | is safe:" << isSafe << endl;
 }
 
 void part1()
@@ -75,9 +116,9 @@ void part1()
         string line;
         while (getline(inputFile, line)) // O(n)
         {
-            isSafe(line,safeCount);
+            isSafe(line, safeCount);
         }
-        cout << "numbrer os fafe records: " << safeCount << endl;
+        cout << "numbrer os safe records: " << safeCount << endl;
     }
     // close the file
     inputFile.close();
