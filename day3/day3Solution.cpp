@@ -8,7 +8,8 @@
 
 using namespace std;
 
-void part1(){
+void part1()
+{
 
     // pattern to read "mul(X,Y)"  where X and Y are integers of 1-3 digits
     string pattern = "mul\\([0-9]{1,3},[0-9]{1,3}\\)";
@@ -29,10 +30,11 @@ void part1(){
         auto begin = content.cbegin();
         auto end = content.cend();
 
-        while (regex_search(begin, end, match, re)) {
+        while (regex_search(begin, end, match, re))
+        {
             string str = match.str();
             int commaIndex = match.str().find(",");
-            int num1 = stoi(str.substr(4,commaIndex- 4));
+            int num1 = stoi(str.substr(4, commaIndex - 4));
             int num2 = stoi(str.substr(commaIndex + 1, str.size() - commaIndex - 2));
             result += num1 * num2;
             // cout << match.str() << num1 * num2 << endl;
@@ -43,7 +45,64 @@ void part1(){
     }
     // close the file
     inputFile.close();
+}
 
+void part2()
+{
+
+    // pattern to read "mul(X,Y)"  or "do()" or "don't()" where X and Y are integers of 1-3 digits
+    string pattern = "mul\\([0-9]{1,3},[0-9]{1,3}\\)|don't\\(\\)|do\\(\\)";
+
+    // result sumatory
+    int result = 0;
+
+    ifstream inputFile("input.txt");
+    if (inputFile.is_open())
+    {
+        stringstream buffer;
+        buffer << inputFile.rdbuf();
+        string content = buffer.str();
+
+        regex re(pattern);
+        smatch match;
+
+        auto begin = content.cbegin();
+        auto end = content.cend();
+
+        bool enabled = true;
+
+        string str = "";
+
+        int sum = 0;
+        bool enable = true;
+
+        while (regex_search(begin, end, match, re))
+        {
+            str = match.str();
+            if (str == "do()")
+            {
+                enable = true;
+            }
+            else if (str == "don't()")
+            {
+                enable = false;
+            }
+            else if (enable)
+            {
+                int commaIndex = str.find(",");
+                int num1 = stoi(str.substr(4, commaIndex - 4));
+                int num2 = stoi(str.substr(commaIndex + 1, str.size() - commaIndex - 2));
+                result += num1 * num2;
+            }
+            // cout << match.str() << endl;
+            begin = match.suffix().first;
+        }
+
+        // print the result
+        cout << "Result: " << result << endl;
+    }
+    // close the file
+    inputFile.close();
 }
 
 int main()
@@ -53,6 +112,7 @@ int main()
     start = clock();
 
     part1();
+    part2();
 
     // stop the timer
     cout << "Time: " << (clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms " << endl;
